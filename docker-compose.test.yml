@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  cognitive-tests:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    depends_on:
+      - cognitive_db_service
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=cognitive_db_service;Port=5432;Database=cognitive_db;Username=postgres;Password=Nexus000*
+
+  cognitive_db_service:
+    image: postgres:15
+    environment:
+      - POSTGRES_DB=cognitive_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=Nexus000*
+    ports:
+      - "5432:5432"

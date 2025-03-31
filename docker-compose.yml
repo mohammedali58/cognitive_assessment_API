@@ -1,0 +1,47 @@
+version: "3.9"
+
+services:
+  cognitive_db_service:
+    image: postgres:15
+    container_name: cognitive_container
+    restart: always
+    environment:
+      POSTGRES_DB: cognitive_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Nexus000*
+    
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - cognitive_net
+
+  cognitive_api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5212:5212"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=cognitive_db_service;Port=5432;Database=cognitive_db;Username=postgres;Password=Nexus000*
+    depends_on:
+      cognitive_db_service:
+        condition: service_healthy
+    networks:
+      - cognitive_net
+
+
+
+volumes:
+  db_data:
+
+networks:
+  cognitive_net:
